@@ -1,4 +1,4 @@
-module lecture/go-mvc
+module lecture/WBABEProject-03
 
 go 1.19
 

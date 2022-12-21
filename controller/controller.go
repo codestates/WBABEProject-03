@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"lecture/go-mvc/model"
+	"lecture/WBABEProject-03/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

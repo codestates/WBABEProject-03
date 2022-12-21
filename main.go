@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	ctl "lecture/go-mvc/controller"
-	"lecture/go-mvc/model"
-	rt "lecture/go-mvc/router"
+	ctl "lecture/WBABEProject-03/controller"
+	"lecture/WBABEProject-03/model"
+	rt "lecture/WBABEProject-03/router"
 	"net/http"
 	"os"
 	"os/signal"

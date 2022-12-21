@@ -2,7 +2,7 @@ package router
 
 import (
 	"fmt"
-	ctl "lecture/go-mvc/controller"
+	ctl "lecture/WBABEProject-03/controller"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +40,7 @@ func (p *Router) Idx() *gin.Engine {
 	e.Use(gin.Recovery())
 	e.Use(CORS())
 
-	account := e.Group("acc/v01", liteAuth())
+	account := e.Group("api/v1", liteAuth())
 	{
 		fmt.Println(account)
 		account.GET("/ok", p.ct.GetOK) // controller 패키지의 실제 처리 함수
