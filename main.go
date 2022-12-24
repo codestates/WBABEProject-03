@@ -23,40 +23,40 @@ func main() {
 	//model 모듈 선언
 	if mod, err := model.NewModel(); err != nil {
 		panic(err)
-		//~생략
-	} else if controller, err := ctl.NewCTL(mod); err != nil { //controller 모듈 설정
-		panic(err)
-		//~생략
-	} else if rt, err := rt.NewRouter(controller); err != nil { //router 모듈 설정
-		panic(err)
-		//~생략
+	} else if controller, err := ctl.NewCTL(mod); err != nil {
+		panic(fmt.Errorf("controller.New > %v", err))
+	} else if rt, err := rt.NewRouter(controller); err != nil {
+		panic(fmt.Errorf("router.NewRouter > %v", err))
 	} else {
 		mapi := &http.Server{
 			Addr:           ":8080",
 			Handler:        rt.Idx(),
-			ReadTimeout:    3 * time.Second,
-			WriteTimeout:   5 * time.Second,
+			ReadTimeout:    5 * time.Second,
+			WriteTimeout:   10 * time.Second,
 			MaxHeaderBytes: 1 << 20,
 		}
 
 		g.Go(func() error {
 			return mapi.ListenAndServe()
 		})
-		quit := make(chan os.Signal)
 
+		quit := make(chan os.Signal)
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		<-quit
+		fmt.Println("Shutdown Server ...")
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 		if err := mapi.Shutdown(ctx); err != nil {
-			fmt.Println(err)
+			fmt.Println("Server Shutdown:", err)
 		}
 
 		select {
 		case <-ctx.Done():
+			fmt.Println("timeout of 5 seconds.")
 		}
-		fmt.Println("sever exit")
+
+		fmt.Println("Server exiting")
 	}
 	if err := g.Wait(); err != nil {
 		fmt.Println(err)

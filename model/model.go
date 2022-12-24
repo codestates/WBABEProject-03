@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"time"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,9 +19,9 @@ type Model struct {
 }
 
 type Person struct {
-	Name string `bson:"name"`
-	Age  int    `bson:"age"`
-	Pnum string `bson:"pnum"`
+	Name string `json:"name" bson:"name"`
+	Age  int    `json:"age" bson:"age"`
+	Pnum string `json:"pnum" bson:"pnum"`
 }
 
 func NewModel() (*Model, error) {
@@ -38,23 +41,82 @@ func NewModel() (*Model, error) {
 	return r, nil
 }
 
-func (p *Model) GetPerson() []Person {
+func (p *Model) Check(c *gin.Context) {
+	p.RespOK(c, 0)
+}
+
+func (p *Model) RespOK(c *gin.Context, resp interface{}) {
+	c.JSON(http.StatusOK, resp)
+}
+
+func (p *Model) GetPerson() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	filter := bson.D{}
-	cur, err := p.colPersons.Find(context.TODO(), filter)
+	cursor, err := p.colPersons.Find(ctx, filter)
 	if err != nil {
 		panic(err)
 	}
-	var pers []Person
 
+	var pers []Person
 	for _, result := range pers {
-		cur.Decode(&result)
+		cursor.Decode(&result)
 		output, err := json.MarshalIndent(result, "", "    ")
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(output)
+		fmt.Printf("%s\n", output)
+	}
+}
+
+func (p *Model) GetOnePerson(flag, elem string) (Person, error) {
+	opts := []*options.FindOneOptions{}
+
+	var filter bson.M
+	if flag == "name" {
+		filter = bson.M{"name": elem}
+	} else {
+		filter = bson.M{"pnum": elem}
 	}
 
+	var pers Person
+	if err := p.colPersons.FindOne(context.TODO(), filter, opts...).Decode(&pers); err != nil {
+		return pers, err
+	} else {
+		return pers, nil
+	}
+}
+
+func (p *Model) CreatePerson(pers Person) error {
+	if _, err := p.colPersons.InsertOne(context.TODO(), pers); err != nil {
+		fmt.Println("fail insert new person")
+		return fmt.Errorf("fail, insert new person")
+	}
+	return nil
+}
+
+func (p *Model) DeletePerson(spnum string) error {
+	filter := bson.M{"pnum": spnum}
+
+	if res, err := p.colPersons.DeleteOne(context.TODO(), filter); res.DeletedCount <= 0 {
+		return fmt.Errorf("Could not Delete, Not found num %s", spnum)
+	} else if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Model) UpdatePerson(pnum string, age int) error {
+	filter := bson.M{"pnum": pnum}
+	update := bson.M{
+		"$set": bson.M{
+			"age": age,
+		},
+	}
+
+	if _, err := p.colPersons.UpdateOne(context.Background(), filter, update); err != nil {
+		return err
+	}
 	return nil
 }
