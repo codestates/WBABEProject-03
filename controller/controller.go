@@ -459,7 +459,7 @@ func (p *Controller) InsertReview(c *gin.Context) {
 		fmt.Printf("error - %+v \n", err)
 	}
 
-	for key, _ := range reviewDto.MenuScore {
+	for key := range reviewDto.MenuScore {
 		menu, _ := p.md.GetOneMenu(key)
 		if menu.Name == "" {
 			p.RespError(c, nil, http.StatusUnprocessableEntity, "Can not find Menu", nil)
