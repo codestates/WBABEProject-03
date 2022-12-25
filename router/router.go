@@ -55,8 +55,11 @@ func (p *Router) Idx() *gin.Engine {
 
 	e.GET("/health")
 
-	papi := e.Group("person/v01", liteAuth())
+	papi := e.Group("api/v1", liteAuth())
 	{
+		//조회 - 모든고객
+		papi.GET("/persons", p.ct.GetPersonAll)
+
 		//조회 - name
 		papi.GET("/nser/:name", p.ct.GetPersonWithName)
 
@@ -73,5 +76,11 @@ func (p *Router) Idx() *gin.Engine {
 		papi.PUT("/upd", p.ct.UpdatePerson)
 	}
 
+	menu := e.Group("api/v1")
+	{
+		// 전체메뉴조회
+		menu.GET("/menus", p.ct.GetMenuAll)
+		menu.POST("/menus", p.ct.InsertMenu)
+	}
 	return e
 }

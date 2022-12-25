@@ -2,8 +2,8 @@ package model
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -16,12 +16,19 @@ import (
 type Model struct {
 	client     *mongo.Client
 	colPersons *mongo.Collection
+	colMenus   *mongo.Collection
 }
 
 type Person struct {
 	Name string `json:"name" bson:"name"`
 	Age  int    `json:"age" bson:"age"`
 	Pnum string `json:"pnum" bson:"pnum"`
+}
+
+// 이름, 가격
+type Menu struct {
+	Name  string `json:"name" bson:"name"`
+	Price int    `json:"price" bson:"price"`
 }
 
 func NewModel() (*Model, error) {
@@ -36,6 +43,7 @@ func NewModel() (*Model, error) {
 	} else {
 		db := r.client.Database("go-ready")
 		r.colPersons = db.Collection("tPerson")
+		r.colMenus = db.Collection("tMenu")
 	}
 
 	return r, nil
@@ -59,14 +67,19 @@ func (p *Model) GetPerson() {
 		panic(err)
 	}
 
-	var pers []Person
-	for _, result := range pers {
-		cursor.Decode(&result)
-		output, err := json.MarshalIndent(result, "", "    ")
-		if err != nil {
-			panic(err)
+	// var pers []bson.M
+	// if err = cursor.All(ctx, &pers); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println(pers)
+
+	defer cursor.Close(ctx)
+	for cursor.Next(ctx) {
+		var pers bson.M
+		if err = cursor.Decode(&pers); err != nil {
+			log.Fatal(err)
 		}
-		fmt.Printf("%s\n", output)
+		fmt.Println(pers)
 	}
 }
 
@@ -117,6 +130,43 @@ func (p *Model) UpdatePerson(pnum string, age int) error {
 
 	if _, err := p.colPersons.UpdateOne(context.Background(), filter, update); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (p *Model) FindAllMenu() ([]bson.M, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.D{}
+	cursor, err := p.colMenus.Find(ctx, filter)
+	if err != nil {
+		panic(err)
+	}
+	var menus []bson.M
+	if err = cursor.All(ctx, &menus); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(menus)
+	return menus, err
+}
+func (p *Model) GetOneMenu(elem string) (Menu, error) {
+	opts := []*options.FindOneOptions{}
+
+	filter := bson.M{"name": elem}
+
+	var menu Menu
+	if err := p.colMenus.FindOne(context.TODO(), filter, opts...).Decode(&menu); err != nil {
+		return menu, err
+	} else {
+		fmt.Println(menu)
+		return menu, nil
+	}
+}
+func (p *Model) CreateMenu(menu Menu) error {
+	if _, err := p.colMenus.InsertOne(context.TODO(), menu); err != nil {
+		fmt.Println("fail insert new menu")
+		return fmt.Errorf("fail, insert new menu")
 	}
 	return nil
 }

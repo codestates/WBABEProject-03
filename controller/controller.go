@@ -183,3 +183,58 @@ func (p *Controller) UpdatePerson(c *gin.Context) {
 	})
 	c.Next()
 }
+func (p *Controller) GetPersonAll(c *gin.Context) {
+	p.md.GetPerson()
+	c.JSON(http.StatusOK, gin.H{
+		"res":  "ok",
+		"body": "pers",
+	})
+	c.Next()
+
+}
+func (p *Controller) GetMenuAll(c *gin.Context) {
+	if menus, err := p.md.FindAllMenu(); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"res":  "fail",
+			"body": err.Error(),
+		})
+		c.Abort()
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"res":  "ok",
+			"body": menus,
+		})
+		c.Next()
+	}
+}
+
+func (p *Controller) InsertMenu(c *gin.Context) {
+	name := c.PostForm("name")
+	sPrice := c.PostForm("price")
+
+	if len(name) <= 0 {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", nil)
+		return
+	}
+
+	menu, _ := p.md.GetOneMenu(name)
+	if menu != (model.Menu{}) {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "already resistery Menu", nil)
+		return
+	}
+
+	nPrice, err := strconv.Atoi(sPrice)
+	if err != nil {
+		nPrice = 0
+	}
+
+	req := model.Menu{Name: name, Price: nPrice}
+	if err := p.md.CreateMenu(req); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
+}
