@@ -34,10 +34,10 @@ type Menu struct {
 	IsToday  bool   `json:"isToday" bson:"isToday"`
 }
 type Order struct {
-	ClientName string `json:"name" bson:"name"`
-	MenuList   string `json:"menuList" bson:"menuList"`
-	TotalPrice int    `json:"totalPrice" bson:"totalPrice"`
-	Status     string `json:"status" bson:"status"`
+	ClientName string   `json:"name" bson:"name"`
+	MenuList   []string `json:"menuList" bson:"menuList"`
+	TotalPrice int      `json:"totalPrice" bson:"totalPrice"`
+	Status     string   `json:"status" bson:"status"`
 }
 
 func NewModel() (*Model, error) {
@@ -162,7 +162,7 @@ func (p *Model) FindAllMenu() ([]bson.M, error) {
 }
 func (p *Model) GetOneMenu(elem string) (Menu, error) {
 	opts := []*options.FindOneOptions{}
-
+	fmt.Println(elem)
 	filter := bson.M{"name": elem}
 
 	var menu Menu
@@ -224,7 +224,7 @@ func (p *Model) FindAllOrderWithoutDone() ([]bson.M, error) {
 
 	filter := bson.M{
 		"status": bson.M{
-			"$ne": "DONE",
+			"$ne": "배달완료",
 		},
 	}
 	cursor, err := p.colOrders.Find(ctx, filter)
@@ -237,4 +237,13 @@ func (p *Model) FindAllOrderWithoutDone() ([]bson.M, error) {
 	}
 	fmt.Println(orders)
 	return orders, err
+}
+
+// CreateOrder
+func (p *Model) CreateOrder(order Order) error {
+	if _, err := p.colOrders.InsertOne(context.TODO(), order); err != nil {
+		fmt.Println("fail insert new order")
+		return fmt.Errorf("fail, insert new order")
+	}
+	return nil
 }

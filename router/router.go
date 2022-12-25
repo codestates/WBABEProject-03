@@ -94,6 +94,9 @@ func (p *Router) Idx() *gin.Engine {
 	{
 		// 완료되지 않은 전체 주문 조회
 		order.GET("/order", p.ct.GetOrdersWithoutDone)
+		// 주문 등록
+		order.POST("/order", p.ct.InsertOrder)
+
 	}
 	return e
 }

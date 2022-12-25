@@ -272,8 +272,8 @@ func (p *Controller) UpdateMenu(c *gin.Context) {
 }
 
 type menuDto struct {
-	Name    string `json:"name"`
-	IsToday bool   `json:"isToday"`
+	name    string `json:"name"`
+	isToday bool   `json:"isToday"`
 }
 
 func (p *Controller) UpdateMenuOnTodayMenu(c *gin.Context) {
@@ -285,7 +285,7 @@ func (p *Controller) UpdateMenuOnTodayMenu(c *gin.Context) {
 		fmt.Printf("error - %+v \n", err)
 	}
 
-	if err := p.md.UpdateMenuOnTodayMenu(menuDto.Name, menuDto.IsToday); err != nil {
+	if err := p.md.UpdateMenuOnTodayMenu(menuDto.name, menuDto.isToday); err != nil {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
 		return
 	}
@@ -330,4 +330,49 @@ func (p *Controller) GetOrdersWithoutDone(c *gin.Context) {
 		})
 		c.Next()
 	}
+}
+
+type orderDto struct {
+	ClientName string   `json:"clientName" bson:"clientName"`
+	MenuList   []string `json:"menuList" bson:"menuList"`
+}
+
+func (p *Controller) InsertOrder(c *gin.Context) {
+	var orderDto orderDto
+
+	if err := c.ShouldBindJSON(&orderDto); err == nil {
+		fmt.Printf("order dto - %+v \n", orderDto)
+	} else {
+		fmt.Printf("error - %+v \n", err)
+	}
+
+	if len(orderDto.MenuList) <= 0 {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", nil)
+		return
+	}
+	var totalPrice int
+	for _, menu := range orderDto.MenuList {
+		tMenu, _ := p.md.GetOneMenu(menu)
+		if tMenu.Name == "" {
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "Can Not Find Menu", nil)
+			return
+		}
+		totalPrice += tMenu.Price
+	}
+
+	req := model.Order{
+		ClientName: orderDto.ClientName,
+		MenuList:   orderDto.MenuList,
+		Status:     "접수중",
+		TotalPrice: totalPrice,
+	}
+
+	if err := p.md.CreateOrder(req); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
 }
