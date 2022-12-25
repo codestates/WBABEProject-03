@@ -315,7 +315,6 @@ func (p *Controller) DelMenu(c *gin.Context) {
 	c.Next()
 }
 
-// GetOrdersWithoutDone
 func (p *Controller) GetOrdersWithoutDone(c *gin.Context) {
 	if orders, err := p.md.FindAllOrderWithoutDone(); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -371,6 +370,76 @@ func (p *Controller) InsertOrder(c *gin.Context) {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
+}
+
+type orderUpdateMenuDto struct {
+	Pnum           string   `json:"pnum" bson:"pnum"`
+	UpdateMenuList []string `json:"updateMenuList" bson:"updateMenuList"`
+}
+
+func (p *Controller) UpdateOrderMenu(c *gin.Context) {
+	var orderUpdateMenuDto orderUpdateMenuDto
+	if err := c.ShouldBindJSON(&orderUpdateMenuDto); err == nil {
+		fmt.Printf("orderUpdate dto - %+v \n", orderUpdateMenuDto)
+	} else {
+		fmt.Printf("error - %+v \n", err)
+	}
+
+	var totalPrice int
+	for _, menu := range orderUpdateMenuDto.UpdateMenuList {
+		tMenu, _ := p.md.GetOneMenu(menu)
+		if tMenu.Name == "" {
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "Can Not Find Menu", nil)
+			return
+		}
+		totalPrice += tMenu.Price
+	}
+
+	nPnum, err := strconv.Atoi(orderUpdateMenuDto.Pnum)
+	if err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "pnum error", err)
+		return
+	}
+
+	if err := p.md.UpdateOrderMenu(nPnum, orderUpdateMenuDto.UpdateMenuList, totalPrice); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
+}
+
+type orderUpdateStatusDto struct {
+	Pnum         string `json:"pnum" bson:"pnum"`
+	UpdateStatus string `json:"updateStatus" bson:"updateStatus"`
+}
+
+func (p *Controller) UpdateOrderStatus(c *gin.Context) {
+	var orderUpdateStatusDto orderUpdateStatusDto
+	if err := c.ShouldBindJSON(&orderUpdateStatusDto); err == nil {
+		fmt.Printf("orderUpdate dto - %+v \n", orderUpdateStatusDto)
+	} else {
+		fmt.Printf("error - %+v \n", err)
+	}
+
+	nPnum, err := strconv.Atoi(orderUpdateStatusDto.Pnum)
+	if err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "pnum error", err)
+		return
+	}
+
+	if err := p.md.UpdateOrderStatus(nPnum, orderUpdateStatusDto.UpdateStatus); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"result": "ok",
 	})

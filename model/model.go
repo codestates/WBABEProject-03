@@ -247,3 +247,32 @@ func (p *Model) CreateOrder(order Order) error {
 	}
 	return nil
 }
+
+func (p *Model) UpdateOrderMenu(pnum int, menuList []string, totalPrice int) error {
+	filter := bson.M{"pnum": pnum}
+	update := bson.M{
+		"$set": bson.M{
+			"menuList":   menuList,
+			"totalPrice": totalPrice,
+		},
+	}
+
+	if _, err := p.colOrders.UpdateMany(context.Background(), filter, update); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Model) UpdateOrderStatus(pnum int, status string) error {
+	filter := bson.M{"pnum": pnum}
+	update := bson.M{
+		"$set": bson.M{
+			"status": status,
+		},
+	}
+
+	if _, err := p.colOrders.UpdateMany(context.Background(), filter, update); err != nil {
+		return err
+	}
+	return nil
+}

@@ -96,6 +96,9 @@ func (p *Router) Idx() *gin.Engine {
 		order.GET("/order", p.ct.GetOrdersWithoutDone)
 		// 주문 등록
 		order.POST("/order", p.ct.InsertOrder)
+		// 주문 수정
+		order.PUT("/order", p.ct.UpdateOrderMenu)
+		order.PUT("/order/status", p.ct.UpdateOrderStatus)
 
 	}
 	return e
