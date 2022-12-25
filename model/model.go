@@ -170,3 +170,27 @@ func (p *Model) CreateMenu(menu Menu) error {
 	}
 	return nil
 }
+func (p *Model) UpdateMenu(name string, price int) error {
+	filter := bson.M{"name": name}
+	update := bson.M{
+		"$set": bson.M{
+			"price": price,
+		},
+	}
+
+	if _, err := p.colMenus.UpdateOne(context.Background(), filter, update); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Model) DeleteMenu(name string) error {
+	filter := bson.M{"name": name}
+
+	if res, err := p.colMenus.DeleteOne(context.TODO(), filter); res.DeletedCount <= 0 {
+		return fmt.Errorf("Could not Delete, Not found name %s", name)
+	} else if err != nil {
+		return err
+	}
+	return nil
+}

@@ -61,26 +61,32 @@ func (p *Router) Idx() *gin.Engine {
 		papi.GET("/persons", p.ct.GetPersonAll)
 
 		//조회 - name
-		papi.GET("/nser/:name", p.ct.GetPersonWithName)
+		// papi.GET("/persons/:name", p.ct.GetPersonWithName)
+		papi.GET("/persons/", p.ct.GetPersonWithName)
 
 		//조회 - pnum
-		papi.GET("/pser/:pnum", p.ct.GetPersonWithPnum)
-		fmt.Println("post")
+		papi.GET("/persons/:pnum", p.ct.GetPersonWithPnum)
+
 		//신규인입 - name , age, pnum
-		papi.POST("/ins", p.ct.NewPersonInsert)
+		papi.POST("/persons", p.ct.NewPersonInsert)
 
 		//삭제 - pnum
-		papi.DELETE("/del/:pnum", p.ct.DelPerson)
+		papi.DELETE("/persons/:pnum", p.ct.DelPerson)
 
 		//수정
-		papi.PUT("/upd", p.ct.UpdatePerson)
+		papi.PUT("/persons", p.ct.UpdatePerson)
 	}
 
 	menu := e.Group("api/v1")
 	{
 		// 전체메뉴조회
 		menu.GET("/menus", p.ct.GetMenuAll)
+		// 메뉴 등록
 		menu.POST("/menus", p.ct.InsertMenu)
+		// 메뉴 수정
+		menu.PUT("/menus", p.ct.UpdateMenu)
+		// 메뉴 삭제
+		menu.DELETE("/menus/:name", p.ct.DelMenu)
 	}
 	return e
 }

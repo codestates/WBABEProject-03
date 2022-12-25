@@ -51,7 +51,9 @@ func (p *Controller) GetOK(c *gin.Context, resp interface{}) {
 
 func (p *Controller) GetPersonWithName(c *gin.Context) {
 	fmt.Println(c.ClientIP())
-	sName := c.Param("name")
+	// sName := c.Param("name")
+	sName := c.Query("name")
+	fmt.Println(sName)
 	if len(sName) <= 0 {
 		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
 		c.Abort()
@@ -233,6 +235,55 @@ func (p *Controller) InsertMenu(c *gin.Context) {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
+}
+func (p *Controller) UpdateMenu(c *gin.Context) {
+	name := c.PostForm("name")
+	sPrice := c.PostForm("price")
+
+	if len(sPrice) <= 0 {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", nil)
+		return
+	}
+
+	menu, _ := p.md.GetOneMenu(name)
+	fmt.Println("res ", menu)
+	if menu == (model.Menu{}) {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "could not found menu", nil)
+		return
+	}
+
+	nPrice, err := strconv.Atoi(sPrice)
+	if err != nil {
+		nPrice = 0
+	}
+
+	if err := p.md.UpdateMenu(name, nPrice); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
+}
+func (p *Controller) DelMenu(c *gin.Context) {
+	name := c.Param("name")
+
+	_, err := p.md.GetOneMenu(name)
+	if err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "exist resistery menu", nil)
+		return
+	}
+
+	if err := p.md.DeleteMenu(name); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail delete db", err)
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"result": "ok",
 	})
