@@ -270,6 +270,31 @@ func (p *Controller) UpdateMenu(c *gin.Context) {
 	})
 	c.Next()
 }
+
+type menuDto struct {
+	Name    string `json:"name"`
+	IsToday bool   `json:"isToday"`
+}
+
+func (p *Controller) UpdateMenuOnTodayMenu(c *gin.Context) {
+	var menuDto menuDto
+	fmt.Println(menuDto)
+	if err := c.ShouldBindJSON(&menuDto); err == nil {
+		fmt.Printf("menu dto - %+v \n", menuDto)
+	} else {
+		fmt.Printf("error - %+v \n", err)
+	}
+
+	if err := p.md.UpdateMenuOnTodayMenu(menuDto.Name, menuDto.IsToday); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
+}
+
 func (p *Controller) DelMenu(c *gin.Context) {
 	name := c.Param("name")
 

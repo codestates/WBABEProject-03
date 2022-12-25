@@ -27,8 +27,10 @@ type Person struct {
 
 // 이름, 가격
 type Menu struct {
-	Name  string `json:"name" bson:"name"`
-	Price int    `json:"price" bson:"price"`
+	Name     string `json:"name" bson:"name"`
+	Price    int    `json:"price" bson:"price"`
+	IsOpened bool   `json:"isOpened" bson:"isOpened"`
+	IsToday  bool   `json:"isToday" bson:"isToday"`
 }
 
 func NewModel() (*Model, error) {
@@ -183,7 +185,19 @@ func (p *Model) UpdateMenu(name string, price int) error {
 	}
 	return nil
 }
+func (p *Model) UpdateMenuOnTodayMenu(name string, isToday bool) error {
+	filter := bson.M{"name": name}
+	update := bson.M{
+		"$set": bson.M{
+			"isToday": isToday,
+		},
+	}
 
+	if _, err := p.colMenus.UpdateMany(context.Background(), filter, update); err != nil {
+		return err
+	}
+	return nil
+}
 func (p *Model) DeleteMenu(name string) error {
 	filter := bson.M{"name": name}
 

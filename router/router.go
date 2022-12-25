@@ -87,6 +87,8 @@ func (p *Router) Idx() *gin.Engine {
 		menu.PUT("/menus", p.ct.UpdateMenu)
 		// 메뉴 삭제
 		menu.DELETE("/menus/:name", p.ct.DelMenu)
+		// 오늘의 메뉴 등록
+		menu.POST("/menus/todays", p.ct.UpdateMenuOnTodayMenu)
 	}
 	return e
 }
