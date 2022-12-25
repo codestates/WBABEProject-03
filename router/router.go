@@ -90,5 +90,10 @@ func (p *Router) Idx() *gin.Engine {
 		// 오늘의 메뉴 등록
 		menu.POST("/menus/todays", p.ct.UpdateMenuOnTodayMenu)
 	}
+	order := e.Group("api/v1")
+	{
+		// 완료되지 않은 전체 주문 조회
+		order.GET("/order", p.ct.GetOrdersWithoutDone)
+	}
 	return e
 }

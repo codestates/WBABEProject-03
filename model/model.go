@@ -17,6 +17,7 @@ type Model struct {
 	client     *mongo.Client
 	colPersons *mongo.Collection
 	colMenus   *mongo.Collection
+	colOrders  *mongo.Collection
 }
 
 type Person struct {
@@ -32,6 +33,12 @@ type Menu struct {
 	IsOpened bool   `json:"isOpened" bson:"isOpened"`
 	IsToday  bool   `json:"isToday" bson:"isToday"`
 }
+type Order struct {
+	ClientName string `json:"name" bson:"name"`
+	MenuList   string `json:"menuList" bson:"menuList"`
+	TotalPrice int    `json:"totalPrice" bson:"totalPrice"`
+	Status     string `json:"status" bson:"status"`
+}
 
 func NewModel() (*Model, error) {
 	r := &Model{}
@@ -46,6 +53,7 @@ func NewModel() (*Model, error) {
 		db := r.client.Database("go-ready")
 		r.colPersons = db.Collection("tPerson")
 		r.colMenus = db.Collection("tMenu")
+		r.colOrders = db.Collection("tOrder")
 	}
 
 	return r, nil
@@ -207,4 +215,26 @@ func (p *Model) DeleteMenu(name string) error {
 		return err
 	}
 	return nil
+}
+
+// FindAllOrderWithoutDone
+func (p *Model) FindAllOrderWithoutDone() ([]bson.M, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{
+		"status": bson.M{
+			"$ne": "DONE",
+		},
+	}
+	cursor, err := p.colOrders.Find(ctx, filter)
+	if err != nil {
+		panic(err)
+	}
+	var orders []bson.M
+	if err = cursor.All(ctx, &orders); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(orders)
+	return orders, err
 }

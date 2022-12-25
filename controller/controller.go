@@ -314,3 +314,20 @@ func (p *Controller) DelMenu(c *gin.Context) {
 	})
 	c.Next()
 }
+
+// GetOrdersWithoutDone
+func (p *Controller) GetOrdersWithoutDone(c *gin.Context) {
+	if orders, err := p.md.FindAllOrderWithoutDone(); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"res":  "fail",
+			"body": err.Error(),
+		})
+		c.Abort()
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"res":  "ok",
+			"body": orders,
+		})
+		c.Next()
+	}
+}
