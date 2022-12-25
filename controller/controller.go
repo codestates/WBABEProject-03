@@ -272,8 +272,8 @@ func (p *Controller) UpdateMenu(c *gin.Context) {
 }
 
 type menuDto struct {
-	name    string `json:"name"`
-	isToday bool   `json:"isToday"`
+	Name    string `json:"name"`
+	IsToday bool   `json:"isToday"`
 }
 
 func (p *Controller) UpdateMenuOnTodayMenu(c *gin.Context) {
@@ -285,7 +285,7 @@ func (p *Controller) UpdateMenuOnTodayMenu(c *gin.Context) {
 		fmt.Printf("error - %+v \n", err)
 	}
 
-	if err := p.md.UpdateMenuOnTodayMenu(menuDto.name, menuDto.isToday); err != nil {
+	if err := p.md.UpdateMenuOnTodayMenu(menuDto.Name, menuDto.IsToday); err != nil {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
 		return
 	}
