@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -268,6 +269,25 @@ func (p *Model) UpdateOrderStatus(pnum int, status string) error {
 	update := bson.M{
 		"$set": bson.M{
 			"status": status,
+		},
+	}
+
+	if _, err := p.colOrders.UpdateMany(context.Background(), filter, update); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Model) UpdateReviewInOrder(orderId string, menuScore map[string]int) error {
+	objectId, err := primitive.ObjectIDFromHex(orderId)
+	if err != nil {
+		log.Println("Invalid id")
+	}
+
+	filter := bson.M{"_id": objectId}
+	update := bson.M{
+		"$set": bson.M{
+			"review": menuScore,
 		},
 	}
 

@@ -445,3 +445,35 @@ func (p *Controller) UpdateOrderStatus(c *gin.Context) {
 	})
 	c.Next()
 }
+
+type reviewDto struct {
+	OrderId   string         `json:"orderId" bson:"orderId"`
+	MenuScore map[string]int `json:"menuScore" bson:"menuScore"`
+}
+
+func (p *Controller) InsertReview(c *gin.Context) {
+	var reviewDto reviewDto
+	if err := c.ShouldBindJSON(&reviewDto); err == nil {
+		fmt.Printf("review dto - %+v \n", reviewDto)
+	} else {
+		fmt.Printf("error - %+v \n", err)
+	}
+
+	for key, _ := range reviewDto.MenuScore {
+		menu, _ := p.md.GetOneMenu(key)
+		if menu.Name == "" {
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "Can not find Menu", nil)
+			return
+		}
+	}
+
+	if err := p.md.UpdateReviewInOrder(reviewDto.OrderId, reviewDto.MenuScore); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
+}

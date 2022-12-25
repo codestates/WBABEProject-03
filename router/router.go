@@ -99,6 +99,8 @@ func (p *Router) Idx() *gin.Engine {
 		// 주문 수정
 		order.PUT("/order", p.ct.UpdateOrderMenu)
 		order.PUT("/order/status", p.ct.UpdateOrderStatus)
+		// 주문 완료 후 리뷰
+		order.POST("/order/review", p.ct.InsertReview)
 
 	}
 	return e
