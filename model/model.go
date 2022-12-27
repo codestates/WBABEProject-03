@@ -1,5 +1,5 @@
 package model
-
+// Model 또한 분리하는 것이 좋겠습니다. 
 import (
 	"context"
 	"fmt"
@@ -21,6 +21,7 @@ type Model struct {
 	colOrders  *mongo.Collection
 }
 
+// 필요한 필드들만 존재하는지 확인이 필요합니다.
 type Person struct {
 	Name string `json:"name" bson:"name"`
 	Age  int    `json:"age" bson:"age"`
