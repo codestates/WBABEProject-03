@@ -1,5 +1,5 @@
 package controller
-
+// 속성에 따라 Controller 분리를 하면 좋을 것 같습니다. 
 import (
 	"encoding/json"
 	"fmt"
