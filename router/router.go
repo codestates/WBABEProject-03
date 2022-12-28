@@ -6,6 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 
 	ctl "lecture/WBABEProject-03/controller"
+
+	"lecture/WBABEProject-03/docs"
+
+	swgFiles "github.com/swaggo/files"
+	ginSwg "github.com/swaggo/gin-swagger"
 )
 
 type Router struct {
@@ -54,6 +59,9 @@ func (p *Router) Idx() *gin.Engine {
 	e.Use(CORS())
 
 	e.GET("/health")
+
+	e.GET("/swagger/:any", ginSwg.WrapHandler(swgFiles.Handler))
+	docs.SwaggerInfo.Host = "localhost" //swagger 정보 등록
 
 	papi := e.Group("api/v1", liteAuth())
 	{

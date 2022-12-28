@@ -1,0 +1,93 @@
+definitions:
+  controller.Controller:
+    type: object
+  controller.orderDto:
+    properties:
+      clientName:
+        type: string
+      menuList:
+        items:
+          type: string
+        type: array
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/menus:
+    get:
+      consumes:
+      - application/json
+      description: 모든 메뉴 조회
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Controller'
+      summary: call GetMenuAll, return ok by json.
+  /api/v1/order:
+    get:
+      consumes:
+      - application/json
+      description: 모든 주문 조회 (완료 제외)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Controller'
+      summary: call GetOrdersWithoutDone, return ok by json.
+    post:
+      consumes:
+      - application/json
+      description: 모든 메뉴 조회
+      parameters:
+      - description: new order
+        in: body
+        name: ':'
+        required: true
+        schema:
+          $ref: '#/definitions/controller.orderDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Controller'
+      summary: call InsertOrder, return ok by json.
+  /api/v1/persons:
+    get:
+      consumes:
+      - application/json
+      description: 모든 고객 조회 기능
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Controller'
+      summary: call GetPersonAll, return ok by json.
+    post:
+      consumes:
+      - application/json
+      description: 모든 메뉴 조회
+      parameters:
+      - description: new Person
+        in: body
+        name: ':'
+        required: true
+        schema:
+          $ref: '#/definitions/controller.Controller'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Controller'
+      summary: call NewPersonInsert, return ok by json.
+swagger: "2.0"

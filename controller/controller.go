@@ -98,6 +98,15 @@ func (p *Controller) GetPersonWithPnum(c *gin.Context) {
 	}
 }
 
+// NewPersonInsert godoc
+// @Summary call NewPersonInsert, return ok by json.
+// @Description 모든 메뉴 조회
+// @name NewPersonInsert
+// @Accept json
+// @Produce json
+// @Param : body Controller true "new Person"
+// @Router /api/v1/persons [post]
+// @Success 200 {object} Controller
 func (p *Controller) NewPersonInsert(c *gin.Context) {
 	name := c.PostForm("name")
 	sAge := c.PostForm("age")
@@ -185,6 +194,15 @@ func (p *Controller) UpdatePerson(c *gin.Context) {
 	})
 	c.Next()
 }
+
+// GetPersonAll godoc
+// @Summary call GetPersonAll, return ok by json.
+// @Description 모든 고객 조회 기능
+// @name GetPersonAll
+// @Accept json
+// @Produce json
+// @Router /api/v1/persons [get]
+// @Success 200 {object} Controller
 func (p *Controller) GetPersonAll(c *gin.Context) {
 	p.md.GetPerson()
 	c.JSON(http.StatusOK, gin.H{
@@ -194,6 +212,15 @@ func (p *Controller) GetPersonAll(c *gin.Context) {
 	c.Next()
 
 }
+
+// GetMenuAll godoc
+// @Summary call GetMenuAll, return ok by json.
+// @Description 모든 메뉴 조회
+// @name GetMenuAll
+// @Accept json
+// @Produce json
+// @Router /api/v1/menus [get]
+// @Success 200 {object} Controller
 func (p *Controller) GetMenuAll(c *gin.Context) {
 	if menus, err := p.md.FindAllMenu(); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -315,6 +342,14 @@ func (p *Controller) DelMenu(c *gin.Context) {
 	c.Next()
 }
 
+// GetOrdersWithoutDone godoc
+// @Summary call GetOrdersWithoutDone, return ok by json.
+// @Description 모든 주문 조회 (완료 제외)
+// @name GetOrdersWithoutDone
+// @Accept json
+// @Produce json
+// @Router /api/v1/order [get]
+// @Success 200 {object} Controller
 func (p *Controller) GetOrdersWithoutDone(c *gin.Context) {
 	if orders, err := p.md.FindAllOrderWithoutDone(); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -336,6 +371,15 @@ type orderDto struct {
 	MenuList   []string `json:"menuList" bson:"menuList"`
 }
 
+// InsertOrder godoc
+// @Summary call InsertOrder, return ok by json.
+// @Description 모든 메뉴 조회
+// @name InsertOrder
+// @Accept json
+// @Produce json
+// @Param : body orderDto true "new order"
+// @Router /api/v1/order [post]
+// @Success 200 {object} Controller
 func (p *Controller) InsertOrder(c *gin.Context) {
 	var orderDto orderDto
 
